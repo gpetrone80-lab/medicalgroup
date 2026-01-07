@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medical Group Command Board</title>
     
-    <!-- Meta Tags -->
     <meta name="theme-color" content="#1f2937"/>
     <meta name="description" content="Medical Group Command Board for tracking units and patients during incidents.">
 
-    <!-- Load Tailwind CSS -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Load Inter font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -66,9 +66,8 @@
         }
     </style>
 </head>
-<body class="h-full text-gray-100 flex flex-col relative">
+<body class="h-full text-gray-100 flex flex-col relative overflow-x-hidden" id="body-tag">
 
-    <!-- MODAL FOR DEPARTURE -->
     <div id="modal-overlay" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-gray-800 rounded-xl shadow-2xl border border-gray-600 w-full max-w-md p-6 transform transition-all scale-100">
             <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -98,7 +97,6 @@
                 </div>
             </div>
             
-            <!-- Refusal Option -->
             <div class="mb-4 bg-gray-700/50 p-3 rounded-lg border border-gray-600 flex items-center gap-3">
                 <input type="checkbox" id="modal-refusal" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 bg-gray-800 border-gray-500 cursor-pointer">
                 <label for="modal-refusal" class="text-sm font-bold text-white cursor-pointer select-none">Patient Refusal (No Transport)</label>
@@ -108,8 +106,7 @@
                 <label class="block text-xs text-gray-400 mb-1">Destination Hospital</label>
                 <select id="modal-destination" class="w-full bg-gray-700 border border-gray-500 rounded-lg px-4 py-3 text-white focus:border-blue-500 outline-none text-base shadow-inner disabled:opacity-50 disabled:cursor-not-allowed">
                     <option value="">-- Select Hospital --</option>
-                    <!-- Populated by JS -->
-                </select>
+                    </select>
             </div>
 
             <div class="flex gap-3">
@@ -119,25 +116,26 @@
         </div>
     </div>
 
-    <!-- HEADER -->
-    <header class="bg-gray-800 border-b border-gray-700 p-4 shadow-lg z-10">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-white tracking-wide uppercase">Medical Group</h1>
+    <header class="bg-gray-800 border-b border-gray-700 p-4 shadow-lg z-10 sticky top-0">
+        <div class="max-w-7xl mx-auto flex flex-wrap gap-3 justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-white tracking-wide uppercase truncate">Medical Group</h1>
             <div class="flex gap-2">
+                <button id="view-toggle-btn" onclick="toggleLayout()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm font-medium border border-gray-500 transition-colors">
+                   🖥️ Desktop View
+                </button>
+
                 <button onclick="exportToCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors active:scale-95 shadow-lg border border-green-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    Export CSV
+                    <span class="hidden sm:inline">Export CSV</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 overflow-hidden flex flex-col lg:flex-row max-w-7xl mx-auto w-full p-4 gap-4">
+    <main id="main-container" class="flex-1 overflow-hidden flex flex-col lg:flex-row max-w-7xl mx-auto w-full p-4 gap-4 transition-all duration-300">
 
-        <!-- LEFT COLUMN: Inputs -->
-        <div class="w-full lg:w-1/3 flex flex-col gap-4 overflow-y-auto custom-scroll pr-1">
+        <div id="left-col" class="w-full lg:w-1/3 flex flex-col gap-4 overflow-y-auto custom-scroll pr-1 transition-all duration-300">
             
-            <!-- AREA 1: Incident Details -->
             <section class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 p-4">
                 <h2 class="text-sm font-semibold text-blue-400 uppercase tracking-wider mb-3 border-b border-gray-700 pb-2">Incident Details</h2>
                 <div class="space-y-3">
@@ -162,13 +160,11 @@
                 </div>
             </section>
 
-            <!-- AREA 2: Assign Unit -->
             <section class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 p-4 flex-1">
                 <h2 class="text-sm font-semibold text-orange-400 uppercase tracking-wider mb-3 border-b border-gray-700 pb-2">Assign Unit (Step 1)</h2>
                 
                 <form id="entry-form" class="space-y-4">
                     
-                    <!-- Unit Info -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Unit Type</label>
@@ -188,7 +184,6 @@
                         </div>
                     </div>
 
-                    <!-- Patient Info -->
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs text-gray-400 mb-1">Patient Count</label>
@@ -215,21 +210,16 @@
             </section>
         </div>
 
-        <!-- RIGHT COLUMN: Dashboard & Lists -->
-        <div class="w-full lg:w-2/3 flex flex-col gap-4 overflow-hidden">
+        <div id="right-col" class="w-full lg:w-2/3 flex flex-col gap-4 overflow-hidden transition-all duration-300">
             
-            <!-- Dashboard / Totals -->
-            <!-- Adjusted grid to support 6 columns on large screens -->
-            <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <section id="stats-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 
-                <!-- Tab: Total Patients -->
                 <div class="bg-gray-800 p-4 rounded-xl border border-blue-500 text-center shadow relative overflow-hidden group">
                     <div class="absolute inset-0 bg-blue-500/10 group-hover:bg-blue-500/20 transition-colors"></div>
                     <div class="text-[10px] text-blue-200 uppercase relative z-10 leading-tight">Total Patients</div>
                     <div class="text-2xl font-bold text-blue-400 relative z-10" id="total-patients">0</div>
                 </div>
 
-                <!-- NEW TAB: Refusals -->
                 <div class="bg-gray-800 p-4 rounded-xl border border-gray-500 text-center shadow relative overflow-hidden group">
                     <div class="absolute inset-0 bg-gray-500/10 group-hover:bg-gray-500/20 transition-colors"></div>
                     <div class="text-[10px] text-gray-300 uppercase relative z-10 leading-tight">Total Refusals</div>
@@ -254,7 +244,6 @@
                 </div>
             </section>
 
-            <!-- ACTIVE UNITS LIST (Top Half of Right Column) -->
             <section class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 flex-1 flex flex-col overflow-hidden min-h-[250px]">
                 <div class="p-3 border-b border-gray-700 flex justify-between items-center bg-gray-900/50">
                     <h2 class="text-base font-semibold text-orange-400 uppercase tracking-wide">Active Units on Scene (Step 2)</h2>
@@ -265,14 +254,12 @@
                 </div>
             </section>
 
-            <!-- TRANSPORT HISTORY (Bottom Half of Right Column) -->
             <section class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 flex-1 flex flex-col overflow-hidden min-h-[250px]">
                 <div class="p-3 border-b border-gray-700 flex justify-between items-center bg-gray-900/50">
                     <h2 class="text-base font-semibold text-green-400 uppercase tracking-wide">Transport History / Log</h2>
                     <span class="text-xs text-gray-500" id="log-count">0 Departed</span>
                 </div>
                 
-                <!-- Table Header -->
                 <div class="grid grid-cols-12 gap-2 bg-gray-900 p-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div class="col-span-2">Unit</div>
                     <div class="col-span-1 text-center">Pts</div>
@@ -281,7 +268,6 @@
                     <div class="col-span-2 text-right">Time</div>
                 </div>
 
-                <!-- Table Body -->
                 <div class="flex-1 overflow-y-auto custom-scroll p-2 space-y-2" id="transport-log">
                     <div class="text-center text-gray-600 py-8 italic text-sm">No transports logged yet.</div>
                 </div>
@@ -442,7 +428,6 @@
                 card.innerHTML = `
                     <div class="flex items-center gap-4 flex-1">
                         <div class="w-24">
-                            <!-- Editable Unit ID -->
                             <input type="text" 
                                    value="${u.unitId}" 
                                    onchange="updateActiveUnitId(${u.id}, this.value)"
@@ -455,7 +440,6 @@
                             <div class="font-bold text-white">${u.patientCount}</div>
                         </div>
                         
-                        <!-- Editable Triage Category Dropdown -->
                         <div class="relative group">
                             <select onchange="updateUnitTriage(${u.id}, this.value)" 
                                 class="appearance-none pl-3 pr-7 py-1 rounded text-xs font-bold uppercase cursor-pointer outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-gray-700 focus:ring-blue-500 transition-colors ${badgeColor}">
@@ -780,6 +764,70 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        // --- NEW FUNCTION: Layout Toggle ---
+        function toggleLayout() {
+            const body = document.getElementById('body-tag');
+            const main = document.getElementById('main-container');
+            const left = document.getElementById('left-col');
+            const right = document.getElementById('right-col');
+            const btn = document.getElementById('view-toggle-btn');
+            const statsGrid = document.getElementById('stats-grid');
+
+            // Check if we are currently forcing desktop
+            const isForced = main.classList.contains('force-desktop');
+
+            if (isForced) {
+                // SWITCH TO: MOBILE (Default)
+                // Remove forcing classes
+                main.classList.remove('force-desktop', 'flex-row', 'min-w-[1024px]');
+                main.classList.add('flex-col'); 
+                
+                left.classList.remove('w-1/3');
+                left.classList.add('w-full');
+                
+                right.classList.remove('w-2/3');
+                right.classList.add('w-full');
+
+                // Reset grid to responsive
+                statsGrid.classList.remove('grid-cols-6');
+                statsGrid.classList.add('grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-6');
+                
+                // Disable horizontal scroll
+                body.style.overflowX = 'hidden'; 
+                
+                btn.innerHTML = "🖥️ Desktop View";
+            } else {
+                // SWITCH TO: DESKTOP
+                // Add forcing classes
+                main.classList.add('force-desktop', 'flex-row', 'min-w-[1024px]'); // Force 1024px width
+                main.classList.remove('flex-col');
+                
+                left.classList.add('w-1/3');
+                left.classList.remove('w-full');
+                
+                right.classList.add('w-2/3');
+                right.classList.remove('w-full');
+
+                // Force grid to 6 columns
+                statsGrid.classList.add('grid-cols-6');
+                statsGrid.classList.remove('grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-6');
+
+                // Enable horizontal scroll
+                body.style.overflowX = 'auto';
+
+                btn.innerHTML = "📱 Mobile View";
+            }
+        }
+
+        // --- Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then((reg) => console.log('SW registered:', reg))
+                    .catch((err) => console.log('SW registration failed:', err));
+            });
         }
     </script>
 </body>
